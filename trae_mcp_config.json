@@ -3,7 +3,7 @@
     "ContextWeave": {
       "command": "python",
       "args": [
-        "main.py"
+        "D:\\workspace\\cwmcp-client\\main.py"
       ],
       "env": {
         "PYTHONPATH": "D:\\workspace\\cwmcp-client",

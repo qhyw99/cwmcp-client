@@ -1,0 +1,12 @@
+[project]
+name = "cwmcp-client"
+version = "0.1.0"
+description = "MCP Client for Interleaved Thinking D2 Generator"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp",
+    "httpx",
+]
+
+[project.scripts]
+cwmcp-client = "main:mcp.run"

@@ -1,4 +1,3 @@
-
 import os
 import json
 import httpx
@@ -12,13 +11,104 @@ class RemoteMCPServer:
     
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url.rstrip("/")
-        # Increase timeout for long-running generation tasks
-        self.client = httpx.Client(base_url=self.base_url, timeout=300.0) 
+        
+        # Determine timeout priority:
+        # 1. Environment Variable INTERLEAVED_THINKING_TIMEOUT
+        # 2. Config File (if exists) -> client_timeout
+        # 3. Default (300.0)
+        
+        timeout_val = 3000.0
+        
+        # Check Env
+        # env_val = os.environ.get("INTERLEAVED_THINKING_TIMEOUT")
+        # if env_val:
+        #     try:
+        #         timeout_val = float(env_val)
+        #     except ValueError:
+        #         pass
+        # else:
+        #     # Check Config File (config.yaml in project root)
+        #     config_paths = [
+        #         r"D:\workspace\interleaved-thinking\config.yaml",
+        #         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "interleaved-thinking", "config.yaml")),
+        #         os.path.join(os.getcwd(), "config.yaml"),
+        #         "config.yaml",
+        #     ]
+            
+        #     for p in config_paths:
+        #         if os.path.exists(p):
+        #             try:
+        #                 with open(p, "r", encoding="utf-8") as f:
+        #                     for line in f:
+        #                         if line.strip().startswith("client_timeout:"):
+        #                             parts = line.split(":")
+        #                             if len(parts) >= 2:
+        #                                 try:
+        #                                     timeout_val = float(parts[1].strip())
+        #                                     break
+        #                                 except:
+        #                                     pass
+        #                     else:
+        #                         continue 
+        #                     break 
+        #             except:
+        #                 pass
+        
+        # # Ensure minimum reasonable timeout
+        # if timeout_val < 180.0:
+        #     timeout_val = 180.0
+            
+        print(f"[Client] Effective Timeout set to: {timeout_val} seconds", flush=True)
 
-    def run_d2_generation(self, 
-                          test_file: Optional[str] = None, 
+        # Load API Key
+        self.api_key = self._load_api_key()
+
+        self.client = httpx.Client(base_url=self.base_url, timeout=timeout_val) 
+
+    def _load_api_key(self) -> Optional[str]:
+        """Loads API Key from env or config file."""
+        # 1. Environment Variable
+        key = os.environ.get("MCP_API_KEY")
+        if key:
+            return key
+            
+        # 2. Config File (cwmcp_config.json)
+        # Try to find config in typical locations
+        config_paths = [
+            os.path.join(os.getcwd(), "cwmcp_config.json"),
+            os.path.expanduser("~/.cwmcp/config.json"),
+            "cwmcp_config.json"
+        ]
+        
+        for path in config_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        key = data.get("api_key")
+                        if key:
+                            return key
+                except Exception:
+                    pass
+        return None
+
+    def _get_headers(self, request_id: Optional[str] = None) -> Dict[str, str]:
+        headers = {}
+        if self.api_key:
+            headers["X-API-Key"] = self.api_key
+        
+        if request_id:
+            headers["X-Request-ID"] = request_id
+        elif "uuid" not in globals():
+             import uuid
+             headers["X-Request-ID"] = str(uuid.uuid4())
+        
+        return headers
+
+    def run_contextweave_generation(self, 
+                          input_file: Optional[str] = None, 
                           user_request: Optional[str] = None,
-                          initial_d2_code: Optional[str] = None,
+                          session_id: Optional[str] = None,
                           mode: str = "3", 
                           input_sequence: Optional[list] = None) -> Dict[str, Any]:
         
@@ -27,22 +117,18 @@ class RemoteMCPServer:
             "mode": mode,
             "input_sequence": input_sequence,
             "export_svg": True,
-            "export_pptx": False
+            "export_pptx": False,
+            "session_id": session_id
         }
 
         # Handle Content Source
-        if test_file:
-            # Client-side: Read and parse the file
+        if input_file:
             try:
-                if not os.path.exists(test_file):
-                    return {"status": "error", "error": {"code": "FILE_NOT_FOUND", "message": f"File not found: {test_file}"}}
+                if not os.path.exists(input_file):
+                    return {"status": "error", "error": {"code": "FILE_NOT_FOUND", "message": f"File not found: {input_file}"}}
                 
-                with open(test_file, "r", encoding="utf-8") as f:
+                with open(input_file, "r", encoding="utf-8") as f:
                     content = f.read()
-                
-                # Parse # Request and # D2
-                # Simple logic: Split by # D2, then check for # Request
-                # If # Request exists, use it. If not, use everything before # D2 as request.
                 
                 req_text = ""
                 d2_text = ""
@@ -50,7 +136,6 @@ class RemoteMCPServer:
                 if "# D2" in content:
                     parts = content.split("# D2")
                     req_part = parts[0]
-                    # Extract D2 code block
                     d2_part = parts[1]
                     if "```d2" in d2_part:
                         try:
@@ -72,19 +157,28 @@ class RemoteMCPServer:
                 
                 payload["user_request"] = req_text
                 payload["initial_d2_code"] = d2_text
-                # Set test_file to None for the server
                 payload["test_file"] = None
                 
             except Exception as e:
-                return {"status": "error", "error": {"code": "READ_ERROR", "message": f"Failed to read test file: {e}"}}
+                return {"status": "error", "error": {"code": "READ_ERROR", "message": f"Failed to read input file: {e}"}}
         else:
             payload["user_request"] = user_request
-            payload["initial_d2_code"] = initial_d2_code
             payload["test_file"] = None
 
         # Call API
         try:
-            resp = self.client.post("/run", json=payload)
+            # Generate Request ID for this specific call
+            import uuid
+            req_id = str(uuid.uuid4())
+            headers = self._get_headers(req_id)
+            
+            resp = self.client.post("/run", json=payload, headers=headers)
+            
+            if resp.status_code == 403:
+                 return {"status": "error", "error": {"code": "AUTH_ERROR", "message": "Invalid API Key or Missing Key"}}
+            if resp.status_code == 402:
+                 return {"status": "error", "error": {"code": "PAYMENT_REQUIRED", "message": "Insufficient credits"}}
+
             resp.raise_for_status()
             return resp.json()
         except Exception as e:
@@ -106,7 +200,7 @@ class RemoteMCPServer:
         except Exception as e:
             return f"Error fetching prompt: {e}"
 
-    def generate_d2_from_outline(self, outline_file_path: str, user_request: str = "") -> Dict[str, Any]:
+    def generate_contextweave_from_outline(self, outline_file_path: str, user_request: str = "") -> Dict[str, Any]:
         import re
         
         # 1. Read Local File
@@ -154,7 +248,7 @@ class RemoteMCPServer:
             
             if svg_url:
                 try:
-                    append_content = f"\n\n## Generated Diagram\n![D2 Diagram]({svg_url})\n\n[Download SVG]({svg_url})"
+                    append_content = f"\n\n## Generated ContextWeave\n![ContextWeave Visual]({svg_url})\n\n[Download SVG]({svg_url})"
                     with open(outline_file_path, "a", encoding="utf-8") as f:
                         f.write(append_content)
                 except Exception as e:
@@ -165,7 +259,7 @@ class RemoteMCPServer:
 
         return result
 
-    def import_d2_code(self, path: str = "ContextWeave") -> Dict[str, Any]:
+    def import_contextweave_code(self, path: str = "ContextWeave") -> Dict[str, Any]:
         # 1. Local File Discovery
         if not os.path.isabs(path):
             path = os.path.abspath(path)
@@ -196,7 +290,6 @@ class RemoteMCPServer:
             
         # 2. Call API to Import
         try:
-            # We treat CW content as D2 for now (backend handles conversion/pass-through)
             payload = {"d2_code": content, "source_name": cw_file}
             resp = self.client.post("/session/import", json=payload)
             resp.raise_for_status()
@@ -204,7 +297,7 @@ class RemoteMCPServer:
         except Exception as e:
             return {"status": "error", "error": {"code": "API_ERROR", "message": str(e)}}
 
-    def export_d2_code(self, session_id: str, path: str = "ContextWeave") -> Dict[str, Any]:
+    def export_contextweave_code(self, session_id: str, path: str = "ContextWeave") -> Dict[str, Any]:
         # 1. Call API to get code
         try:
             resp = self.client.post("/session/export", json={"session_id": session_id})

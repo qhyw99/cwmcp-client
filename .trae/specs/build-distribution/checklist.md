@@ -1,0 +1,7 @@
+- [x] `pyproject.toml` includes `pyinstaller`
+- [x] `main.py` correctly locates config file when running as a frozen binary
+- [x] `remote_mcp_server.py` correctly locates config file when running as a frozen binary
+- [x] `build.py` script exists and successfully builds a binary locally
+- [x] Generated binary runs and executes basic commands (e.g., prints help or error about missing args) without Python environment
+- [x] `.github/workflows/release.yml` exists and is valid (syntax check)
+- [x] `README.md` contains build instructions

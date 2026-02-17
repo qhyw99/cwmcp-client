@@ -26,7 +26,11 @@ import json
 
 def load_config():
     try:
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cwmcp_config.json")
+        if getattr(sys, 'frozen', False):
+            # If frozen, use the executable directory
+            config_path = os.path.join(os.path.dirname(sys.executable), "cwmcp_config.json")
+        else:
+            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cwmcp_config.json")
     except NameError:
         # Fallback for when __file__ is not defined (e.g. interactive mode)
         config_path = "cwmcp_config.json"

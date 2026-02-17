@@ -1,6 +1,7 @@
 import os
 import json
 import httpx
+import sys
 from typing import Optional, Dict, Any, List
 
 class RemoteMCPServer:
@@ -74,11 +75,15 @@ class RemoteMCPServer:
             
         # 2. Config File (cwmcp_config.json)
         # Try to find config in typical locations
-        config_paths = [
+        config_paths = []
+        if getattr(sys, 'frozen', False):
+            config_paths.append(os.path.join(os.path.dirname(sys.executable), "cwmcp_config.json"))
+            
+        config_paths.extend([
             os.path.join(os.getcwd(), "cwmcp_config.json"),
             os.path.expanduser("~/.cwmcp/config.json"),
             "cwmcp_config.json"
-        ]
+        ])
         
         for path in config_paths:
             if os.path.exists(path):

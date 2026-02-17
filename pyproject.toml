@@ -15,3 +15,6 @@ dependencies = [
 
 [project.scripts]
 cwmcp-client = "main:mcp.run"
+
+[tool.setuptools]
+py-modules = ["main", "remote_mcp_server"]

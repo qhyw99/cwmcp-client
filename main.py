@@ -16,7 +16,7 @@ import os
 # Initialize the Facade
 # Note: We initialize it globally so it persists across tool calls
 # Default to localhost:8000 for the remote server
-api_url = os.environ.get("INTERLEAVED_THINKING_API_URL", "http://localhost:8000")
+api_url = os.environ.get("INTERLEAVED_THINKING_API_URL", "https://abcd.bpjwmsdb.com")
 backend = RemoteMCPServer(base_url=api_url)
 
 # Initialize FastMCP Server

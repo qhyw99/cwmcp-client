@@ -35,7 +35,7 @@ def load_config():
         # Fallback for when __file__ is not defined (e.g. interactive mode)
         config_path = "cwmcp_config.json"
         
-    default_config = {"enable_plan_mode": True}
+    default_config = {"enable_plan_mode": False}
     
     if os.path.exists(config_path):
         try:

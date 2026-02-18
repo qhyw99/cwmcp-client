@@ -1,6 +1,6 @@
 # CWMCP Client
 
-MCP Client for Interleaved Thinking D2 Generator.
+MCP Client for CW Generator.
 
 ## Building from Source
 

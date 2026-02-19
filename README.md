@@ -1,38 +1,58 @@
-# CWMCP Client
+## ContextWeave MCP 配置指南
 
-MCP Client for CW Generator.
+本指南将帮助您在 Trae 等编程工具中配置 ContextWeave MCP 服务。
 
-## Building from Source
+### 第一步：获取 API Key
 
-### Prerequisites
+1. 扫描下方小程序码。
+![小程序码](下载.png)
+2. 进入“我的账户”页面。
+3. 点击“生成 API key”按钮。
+![alt text](image-3.png)
+4. 点击复制生成的 API Key。
+![alt text](image-4.png)
 
-- Python 3.10+
-- pip
 
-### Steps
+### 第二步：配置 MCP 服务
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd cwmcp-client
-    ```
+1. 打开编程工具（如 Trae）。
+2. 进入设置页面，点击 **MCP** 选项卡。
+   ![设置界面](image.png)
+3. 点击“手动添加”按钮。
+4. 在弹出的对话框中，输入下方的 JSON 配置代码。
+   ![添加配置](image-1.png)
 
-2.  **Install dependencies:**
-    ```bash
-    pip install .
-    pip install pyinstaller
-    ```
+### 第三步：填入 API Key
 
-3.  **Run the build script:**
-    ```bash
-    python build.py
-    ```
+将第一步中获取的 API Key 填入 JSON 配置中的 `MCP_API_KEY` 字段（替换 `94a05d02-9ade-4d9d-9f39-xxxxxx`）。
 
-4.  **Locate the executable:**
-    The built executable will be in the `dist/` directory:
-    - Windows: `dist/cwmcp-client.exe`
-    - Linux/macOS: `dist/cwmcp-client`
+**ContextWeave MCP JSON 配置：**
 
-## GitHub Actions
+```json
+{
+  "mcpServers": {
+    "ContextWeave": {
+      "command": "D:\\cwmcp-client-windows.exe",
+      "args": [],
+      "env": {
+        "MCP_API_KEY": "94a05d02-9ade-4d9d-9f39-xxxxxx"
+      }
+    }
+  }
+}
+```
 
-This project uses GitHub Actions for cross-platform builds. The workflow is defined in `.github/workflows/release.yml`. It automatically builds for Ubuntu, Windows, and macOS on tag push (v*).
+### 第四步：验证配置
+
+点击确认后，如果出现如下截图所示的状态，即表示添加成功。
+![配置成功](image-2.png)
+
+使用截图如下：
+
+1.生成ContextWeave代码
+
+2.在现有上下文中编辑ContextWeave代码
+
+3.导出ContextWeave代码文本
+
+4.下载ContextWeave SVG(或pptx)

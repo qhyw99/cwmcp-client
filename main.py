@@ -36,19 +36,26 @@ def load_config():
         config_path = "cwmcp_config.json"
         
     default_config = {"enable_plan_mode": False}
+    final_config = default_config.copy()
     
     if os.path.exists(config_path):
         try:
             with open(config_path, "r", encoding="utf-8") as f:
                 loaded_config = json.load(f)
-                # Pass editor_protocol to backend if present
-                if "editor_protocol" in loaded_config:
-                    backend.editor_protocol = loaded_config["editor_protocol"]
-                return {**default_config, **loaded_config}
+                final_config.update(loaded_config)
         except Exception as e:
             print(f"Warning: Failed to load config file: {e}", file=sys.stderr)
-            return default_config
-    return default_config
+    
+    # Check Environment Variable for editor_protocol (Overrides config file)
+    env_protocol = os.environ.get("EDITOR_PROTOCOL")
+    if env_protocol:
+        final_config["editor_protocol"] = env_protocol
+
+    # Pass editor_protocol to backend if present
+    if "editor_protocol" in final_config:
+        backend.editor_protocol = final_config["editor_protocol"]
+
+    return final_config
 
 config = load_config()
 

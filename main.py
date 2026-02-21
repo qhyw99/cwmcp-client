@@ -40,7 +40,11 @@ def load_config():
     if os.path.exists(config_path):
         try:
             with open(config_path, "r", encoding="utf-8") as f:
-                return {**default_config, **json.load(f)}
+                loaded_config = json.load(f)
+                # Pass editor_protocol to backend if present
+                if "editor_protocol" in loaded_config:
+                    backend.editor_protocol = loaded_config["editor_protocol"]
+                return {**default_config, **loaded_config}
         except Exception as e:
             print(f"Warning: Failed to load config file: {e}", file=sys.stderr)
             return default_config

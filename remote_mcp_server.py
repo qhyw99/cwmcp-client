@@ -63,6 +63,7 @@ class RemoteMCPServer:
 
         # Load API Key
         self.api_key = self._load_api_key()
+        self.editor_protocol = None # Will be set by main.py loading config
 
         self.client = httpx.Client(base_url=self.base_url, timeout=timeout_val) 
 
@@ -125,6 +126,9 @@ class RemoteMCPServer:
             "export_pptx": False,
             "session_id": session_id
         }
+
+        if self.editor_protocol:
+            payload["editor_protocol"] = self.editor_protocol
 
         # Handle Content Source
         if input_file:
@@ -241,6 +245,8 @@ class RemoteMCPServer:
         # 3. Call API
         try:
             payload = {"outline_json": outline_json, "user_request": user_request}
+            if self.editor_protocol:
+                payload["editor_protocol"] = self.editor_protocol
             resp = self.client.post("/outline/generate", json=payload)
             resp.raise_for_status()
             result = resp.json()

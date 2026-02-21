@@ -1,4 +1,5 @@
 {
   "enable_plan_mode": false,
-  "api_key": ""
+  "api_key": "",
+  "editor_protocol": "trae"
 }

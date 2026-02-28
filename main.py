@@ -93,6 +93,16 @@ def run_contextweave_generation(input_file: Optional[str] = None,
         working_dir: Optional. If provided, attempts to load session_id from '.last_session_id' (if session_id not explicit) and saves new session_id after run.
     """
     import json
+    
+    if not input_file and not user_request:
+        return json.dumps({
+            "status": "error", 
+            "error": {
+                "code": "MISSING_INPUT", 
+                "message": "Both 'input_file' and 'user_request' cannot be empty. Please provide at least one."
+            }
+        }, indent=2)
+
     inputs = None
     if input_sequence:
         try:

@@ -1,6 +1,12 @@
 ## ContextWeave MCP 配置指南
 
 本指南将帮助您在 Trae 等编程工具中配置 ContextWeave MCP 服务。
+### 第0步：下载二进制文件
+
+1. 访问 [ContextWeave MCP 客户端下载页面](https://gitee.com/qhyw56/cwmcp-client/releases)。
+2. 下载适用于您操作系统的二进制文件（如 `cwmcp-client-windows.exe`）。
+![alt text](image-6.png)
+3. 将二进制文件保存到您方便访问的目录，例如 `D:\cwmcp-client-windows.exe`。
 
 ### 第一步：获取 API Key
 
@@ -41,7 +47,7 @@
   }
 }
 ```
-
+"command"里的地址"D:\\cwmcp-client-windows.exe"需要同二进制文件的地址一致。
 ### 第四步：验证配置
 
 点击确认后，如果出现如下截图所示的状态，即表示添加成功。
@@ -50,9 +56,10 @@
 使用截图如下：
 
 1.生成ContextWeave代码
-
+![alt text](1.png)
 2.在现有上下文中编辑ContextWeave代码
-
+![alt text](2.png)
 3.导出ContextWeave代码文本
-
+![alt text](3.png)
 4.下载ContextWeave SVG(或pptx)
+![alt text](4.png)

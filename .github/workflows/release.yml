@@ -10,12 +10,51 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-linux:
+    name: Build on manylinux2014
+    runs-on: ubuntu-20.04
+    container:
+      image: quay.io/pypa/manylinux2014_x86_64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      run: |
+        echo "/opt/python/cp310-cp310/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+
+    - name: Build executable
+      run: python build.py
+
+    - name: Rename artifact for release
+      run: mv dist/cwmcp-client dist/cwmcp-client-linux
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cwmcp-client-ubuntu-20.04
+        path: dist/cwmcp-client-*
+
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: dist/cwmcp-client-*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-others:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
     - name: Checkout code
@@ -39,8 +78,6 @@ jobs:
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
           mv dist/cwmcp-client.exe dist/cwmcp-client-windows.exe
-        elif [ "${{ runner.os }}" == "Linux" ]; then
-          mv dist/cwmcp-client dist/cwmcp-client-linux
         elif [ "${{ runner.os }}" == "macOS" ]; then
           mv dist/cwmcp-client dist/cwmcp-client-macos
         fi

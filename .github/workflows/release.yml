@@ -13,24 +13,23 @@ jobs:
   build-linux:
     name: Build on manylinux2014
     runs-on: ubuntu-22.04
-    container:
-      image: quay.io/pypa/manylinux2014_x86_64
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Build executable in manylinux2014
       run: |
-        echo "/opt/python/cp310-cp310/bin" >> $GITHUB_PATH
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .
-
-    - name: Build executable
-      run: python build.py
+        docker run --rm \
+          --user "$(id -u):$(id -g)" \
+          -v "$PWD":/work \
+          -w /work \
+          quay.io/pypa/manylinux2014_x86_64 \
+          /bin/bash -lc '
+            /opt/python/cp310-cp310/bin/python -m pip install --upgrade pip
+            /opt/python/cp310-cp310/bin/pip install .
+            /opt/python/cp310-cp310/bin/python build.py
+          '
 
     - name: Rename artifact for release
       run: mv dist/cwmcp-client dist/cwmcp-client-linux

@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-linux:
     name: Build on manylinux2014
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: quay.io/pypa/manylinux2014_x86_64
 
@@ -38,7 +38,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cwmcp-client-ubuntu-20.04
+        name: cwmcp-client-ubuntu-22.04
         path: dist/cwmcp-client-*
 
     - name: Upload Release Asset

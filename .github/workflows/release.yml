@@ -11,20 +11,21 @@ permissions:
 
 jobs:
   build-linux:
-    name: Build on Debian Buster
+    name: Build on Debian Bookworm
     runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build executable in Debian Buster
+    - name: Build executable in Debian Bookworm
       run: |
         docker run --rm \
           -v "$PWD":/work \
           -w /work \
-          python:3.10-slim-buster \
+          python:3.10-slim-bookworm \
           /bin/bash -c '
+            set -e
             apt-get update && apt-get install -y binutils
             pip install --upgrade pip setuptools wheel
             pip install pyinstaller

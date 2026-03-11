@@ -27,7 +27,17 @@ jobs:
           -w /work \
           quay.io/pypa/manylinux2014_x86_64 \
           /bin/bash -lc '
-            /opt/python/cp310-cp310/bin/python -m venv /tmp/venv
+            PY_VER=3.10.14
+            PY_PREFIX=/tmp/python-shared
+            cd /tmp
+            curl -fsSLO "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
+            tar -xzf "Python-${PY_VER}.tgz"
+            cd "Python-${PY_VER}"
+            ./configure --prefix="${PY_PREFIX}" --enable-shared --with-ensurepip=install
+            make -j"$(nproc)"
+            make install
+            export LD_LIBRARY_PATH="${PY_PREFIX}/lib:${LD_LIBRARY_PATH}"
+            "${PY_PREFIX}/bin/python3.10" -m venv /tmp/venv
             /tmp/venv/bin/python -m pip install --upgrade pip
             /tmp/venv/bin/pip install .
             /tmp/venv/bin/python build.py

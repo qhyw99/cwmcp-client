@@ -11,30 +11,42 @@ permissions:
 
 jobs:
   build-linux:
-    name: Build on Debian Bookworm
+    name: Build on manylinux2014 (glibc 2.17)
     runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build executable in Debian Bookworm
+    - name: Build executable in manylinux2014 with Conda
       run: |
         docker run --rm \
           -v "$PWD":/work \
           -w /work \
-          python:3.10-slim-bookworm \
+          quay.io/pypa/manylinux2014_x86_64 \
           /bin/bash -c '
             set -e
-            apt-get update && apt-get install -y binutils
+            
+            # 1. 下载并静默安装 Miniconda
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+            bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
+            export PATH="/opt/conda/bin:$PATH"
+            
+            # 2. 安装带有 shared library 的 Python 3.10
+            conda install -y python=3.10
+            
+            # 确认 Python 版本
+            python --version
+            
+            # 3. 更新 pip 并安装依赖
             pip install --upgrade pip setuptools wheel
             pip install pyinstaller
             pip install .
             
-            # Run build script
+            # 4. 运行打包脚本
             python build.py
             
-            # Rename artifact
+            # 5. 重命名产物
             mv dist/cwmcp-client dist/cwmcp-client-linux
           '
 

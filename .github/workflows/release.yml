@@ -27,13 +27,12 @@ jobs:
           /bin/bash -c '
             set -e
             
-            # 1. 下载并静默安装 Miniconda
-            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-            bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
-            export PATH="/opt/conda/bin:$PATH"
+            # 1. 下载支持 glibc 2.17 的指定版本 Miniconda (自带 Python 3.10)
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
             
-            # 2. 安装带有 shared library 的 Python 3.10
-            conda install -y python=3.10
+            # 2. 静默安装
+            bash Miniconda3-py310_23.5.2-0-Linux-x86_64.sh -b -p /opt/conda
+            export PATH="/opt/conda/bin:$PATH"
             
             # 确认 Python 版本
             python --version

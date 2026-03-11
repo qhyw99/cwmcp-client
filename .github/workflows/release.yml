@@ -11,37 +11,29 @@ permissions:
 
 jobs:
   build-linux:
-    name: Build on manylinux2014
+    name: Build on Debian Buster
     runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build executable in manylinux2014
+    - name: Build executable in Debian Buster
       run: |
         docker run --rm \
-          -e HOME=/tmp \
           -v "$PWD":/work \
           -w /work \
-          quay.io/pypa/manylinux2014_x86_64 \
-          /bin/bash -lc '
-            # 直接使用 manylinux 自带的 Python 3.10
-            PY_BIN="/opt/python/cp310-cp310/bin/python"
+          python:3.10-slim-buster \
+          /bin/bash -c '
+            apt-get update && apt-get install -y binutils
+            pip install --upgrade pip setuptools wheel
+            pip install pyinstaller
+            pip install .
             
-            # 创建虚拟环境
-            "$PY_BIN" -m venv /tmp/venv
+            # Run build script
+            python build.py
             
-            # 升级基础工具并安装项目依赖
-            # 注意：如果你的 setup.py/pyproject.toml 中没有包含 pyinstaller，请在这里手动加上 pyinstaller
-            /tmp/venv/bin/python -m pip install --upgrade pip setuptools wheel
-            /tmp/venv/bin/pip install pyinstaller
-            /tmp/venv/bin/pip install .
-            
-            # 运行打包脚本
-            /tmp/venv/bin/python build.py
-            
-            # 重命名产物
+            # Rename artifact
             mv dist/cwmcp-client dist/cwmcp-client-linux
           '
 

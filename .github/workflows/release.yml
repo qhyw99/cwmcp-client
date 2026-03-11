@@ -26,22 +26,22 @@ jobs:
           -w /work \
           quay.io/pypa/manylinux2014_x86_64 \
           /bin/bash -lc '
-            PY_VER=3.10.14
-            PY_PREFIX=/opt/python-shared
-            yum -y install gcc make openssl-devel bzip2-devel libffi-devel zlib-devel xz-devel sqlite-devel tar curl
-            cd /tmp
-            curl -fsSLO "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
-            tar -xzf "Python-${PY_VER}.tgz"
-            cd "Python-${PY_VER}"
-            ./configure --prefix="${PY_PREFIX}" --enable-shared --with-ensurepip=install --with-openssl=/usr
-            make -j"$(nproc)"
-            make install
-            export LD_LIBRARY_PATH="${PY_PREFIX}/lib:${LD_LIBRARY_PATH}"
-            cd /work
-            "${PY_PREFIX}/bin/python3.10" -m venv /tmp/venv
+            # 直接使用 manylinux 自带的 Python 3.10
+            PY_BIN="/opt/python/cp310-cp310/bin/python"
+            
+            # 创建虚拟环境
+            "$PY_BIN" -m venv /tmp/venv
+            
+            # 升级基础工具并安装项目依赖
+            # 注意：如果你的 setup.py/pyproject.toml 中没有包含 pyinstaller，请在这里手动加上 pyinstaller
             /tmp/venv/bin/python -m pip install --upgrade pip setuptools wheel
+            /tmp/venv/bin/pip install pyinstaller
             /tmp/venv/bin/pip install .
+            
+            # 运行打包脚本
             /tmp/venv/bin/python build.py
+            
+            # 重命名产物
             mv dist/cwmcp-client dist/cwmcp-client-linux
           '
 
@@ -78,6 +78,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install pyinstaller
         pip install .
 
     - name: Build executable

@@ -21,14 +21,16 @@ jobs:
     - name: Build executable in manylinux2014
       run: |
         docker run --rm \
+          -e HOME=/tmp \
           --user "$(id -u):$(id -g)" \
           -v "$PWD":/work \
           -w /work \
           quay.io/pypa/manylinux2014_x86_64 \
           /bin/bash -lc '
-            /opt/python/cp310-cp310/bin/python -m pip install --upgrade pip
-            /opt/python/cp310-cp310/bin/pip install .
-            /opt/python/cp310-cp310/bin/python build.py
+            /opt/python/cp310-cp310/bin/python -m venv /tmp/venv
+            /tmp/venv/bin/python -m pip install --upgrade pip
+            /tmp/venv/bin/pip install .
+            /tmp/venv/bin/python build.py
           '
 
     - name: Rename artifact for release

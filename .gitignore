@@ -3,3 +3,4 @@ __pycache__/
 build/
 dist/
 *.spec
+cw-skill/set_env.private.sh

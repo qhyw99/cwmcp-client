@@ -16,6 +16,7 @@ zip -r "$OUTPUT_PATH" . \
   -x "*/__pycache__/" \
   -x "*.pyc" \
   -x "*.pyo" \
-  -x "*.DS_Store"
+  -x "*.DS_Store" \
+  -x "set_env.private.sh"
 
 echo "Created: $OUTPUT_PATH"

@@ -17,7 +17,7 @@ class CWClient {
   }
 
   loadApiKey() {
-    const key = process.env.MCP_API_KEY;
+    const key = process.env.CONTEXTWEAVE_MCP_API_KEY || process.env.MCP_API_KEY;
     if (key) {
       return key;
     }
@@ -99,7 +99,7 @@ class CWClient {
         return this.error("PAYMENT_REQUIRED", "Insufficient credits", true, "请充值后重试");
       }
       if (response.statusCode === 403) {
-        return this.error("AUTH_ERROR", "Invalid API key or missing key", true, "请检查 MCP_API_KEY 或配置文件中的 api_key");
+        return this.error("AUTH_ERROR", "Invalid API key or missing key", true, "请检查 CONTEXTWEAVE_MCP_API_KEY（兼容 MCP_API_KEY）或配置文件中的 api_key");
       }
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw new Error(`${response.statusCode} ${response.statusMessage || "Request failed"}`);

@@ -1,7 +1,7 @@
 ---
-name: cw-skill
-description: 面向 ContextWeave 的语义分析与请求编排客户端。用于复杂文本结构化、绘图意图组织与基于文件生成请求编排。
-metadata: { "openclaw": { "emoji": "🧠", "requires": { "bins": ["node"], "env": ["MCP_API_KEY"] }, "primaryEnv": "MCP_API_KEY" } }
+name: contextweave-diagrams
+description: 强大的AI自动化绘图与复杂信息可视化工具（基于 ContextWeave）。不仅支持代码与系统架构的可视化，更广泛适用于复杂逻辑梳理、知识库转换、业务流程图、思维导图及长文本的结构化信息图生成。通过深度的语义分析与请求编排，一键将晦涩文本与复杂知识转化为清晰直观的图形表达。
+metadata: { "openclaw": { "emoji": "🧠", "requires": { "bins": ["node"], "env": ["CONTEXTWEAVE_MCP_API_KEY"] }, "primaryEnv": "CONTEXTWEAVE_MCP_API_KEY" } }
 ---
 
 # ContextWeave Skill

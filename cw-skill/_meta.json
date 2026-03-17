@@ -1,8 +1,12 @@
 {
-  "slug": "cw-skill",
+  "slug": "contextweave-diagrams",
   "version": "0.1.0",
-  "dependencies": {
-    "bins": ["node"],
-    "env": ["MCP_API_KEY"]
+  "openclaw": {
+    "emoji": "🧠",
+    "requires": {
+      "bins": ["node"],
+      "env": ["CONTEXTWEAVE_MCP_API_KEY"]
+    },
+    "primaryEnv": "CONTEXTWEAVE_MCP_API_KEY"
   }
 }

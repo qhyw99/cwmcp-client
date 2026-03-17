@@ -14,8 +14,8 @@ set -a
 source "$PRIVATE_ENV_FILE"
 set +a
 
-if [ -z "${MCP_API_KEY_VALUE:-}" ] || [ -z "${EDITOR_PROTOCOL_VALUE:-}" ]; then
-  echo "私有配置文件缺少 MCP_API_KEY_VALUE 或 EDITOR_PROTOCOL_VALUE"
+if [ -z "${CONTEXTWEAVE_MCP_API_KEY_VALUE:-}" ] || [ -z "${EDITOR_PROTOCOL_VALUE:-}" ]; then
+  echo "私有配置文件缺少 CONTEXTWEAVE_MCP_API_KEY_VALUE 或 EDITOR_PROTOCOL_VALUE"
   exit 1
 fi
 
@@ -75,13 +75,13 @@ upsert_powershell_export() {
 
 for rc_file in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bash_profile" "$HOME/.profile"; do
   [ -e "$rc_file" ] || touch "$rc_file"
-  upsert_posix_export "$rc_file" "MCP_API_KEY" "$MCP_API_KEY_VALUE"
+  upsert_posix_export "$rc_file" "CONTEXTWEAVE_MCP_API_KEY" "$CONTEXTWEAVE_MCP_API_KEY_VALUE"
   upsert_posix_export "$rc_file" "EDITOR_PROTOCOL" "$EDITOR_PROTOCOL_VALUE"
 done
 
 fish_rc="$HOME/.config/fish/config.fish"
 mkdir -p "$(dirname "$fish_rc")"
-upsert_fish_export "$fish_rc" "MCP_API_KEY" "$MCP_API_KEY_VALUE"
+upsert_fish_export "$fish_rc" "CONTEXTWEAVE_MCP_API_KEY" "$CONTEXTWEAVE_MCP_API_KEY_VALUE"
 upsert_fish_export "$fish_rc" "EDITOR_PROTOCOL" "$EDITOR_PROTOCOL_VALUE"
 
 ps_profile_paths=()
@@ -99,11 +99,11 @@ if command -v powershell.exe >/dev/null 2>&1; then
 fi
 for rc_file in "${ps_profile_paths[@]}"; do
   mkdir -p "$(dirname "$rc_file")"
-  upsert_powershell_export "$rc_file" "MCP_API_KEY" "$MCP_API_KEY_VALUE"
+  upsert_powershell_export "$rc_file" "CONTEXTWEAVE_MCP_API_KEY" "$CONTEXTWEAVE_MCP_API_KEY_VALUE"
   upsert_powershell_export "$rc_file" "EDITOR_PROTOCOL" "$EDITOR_PROTOCOL_VALUE"
 done
 
-export MCP_API_KEY="$MCP_API_KEY_VALUE"
+export CONTEXTWEAVE_MCP_API_KEY="$CONTEXTWEAVE_MCP_API_KEY_VALUE"
 export EDITOR_PROTOCOL="$EDITOR_PROTOCOL_VALUE"
 
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then

@@ -69,8 +69,7 @@ class RemoteMCPServer:
 
     def _load_api_key(self) -> Optional[str]:
         """Loads API Key from env or config file."""
-        # 1. Environment Variable
-        key = os.environ.get("MCP_API_KEY")
+        key = os.environ.get("CONTEXTWEAVE_MCP_API_KEY") or os.environ.get("MCP_API_KEY")
         if key:
             return key
             

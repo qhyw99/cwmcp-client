@@ -9,13 +9,20 @@ class TestRemoteMCPServerBilling(unittest.TestCase):
 
     def setUp(self):
         # Reset env vars
+        if "CONTEXTWEAVE_MCP_API_KEY" in os.environ:
+            del os.environ["CONTEXTWEAVE_MCP_API_KEY"]
         if "MCP_API_KEY" in os.environ:
             del os.environ["MCP_API_KEY"]
 
     def test_load_api_key_from_env(self):
-        os.environ["MCP_API_KEY"] = "env-key-123"
+        os.environ["CONTEXTWEAVE_MCP_API_KEY"] = "env-key-123"
         server = RemoteMCPServer()
         self.assertEqual(server.api_key, "env-key-123")
+
+    def test_load_api_key_from_legacy_env(self):
+        os.environ["MCP_API_KEY"] = "legacy-env-key-123"
+        server = RemoteMCPServer()
+        self.assertEqual(server.api_key, "legacy-env-key-123")
 
     def test_load_api_key_from_config(self):
         mock_config = json.dumps({"api_key": "config-key-456"})
@@ -26,7 +33,7 @@ class TestRemoteMCPServerBilling(unittest.TestCase):
 
     @patch("remote_mcp_server.httpx.Client")
     def test_run_generation_sends_headers(self, mock_client_cls):
-        os.environ["MCP_API_KEY"] = "test-key"
+        os.environ["CONTEXTWEAVE_MCP_API_KEY"] = "test-key"
         mock_client = MagicMock()
         mock_client_cls.return_value = mock_client
         
@@ -49,7 +56,7 @@ class TestRemoteMCPServerBilling(unittest.TestCase):
         
     @patch("remote_mcp_server.httpx.Client")
     def test_run_generation_handles_402_payment_required(self, mock_client_cls):
-        os.environ["MCP_API_KEY"] = "broke-key"
+        os.environ["CONTEXTWEAVE_MCP_API_KEY"] = "broke-key"
         mock_client = MagicMock()
         mock_client_cls.return_value = mock_client
         

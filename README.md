@@ -30,7 +30,7 @@
 
 ### 第三步：填入 API Key
 
-将第一步中获取的 API Key 填入 JSON 配置中的 `MCP_API_KEY` 字段（替换 `94a05d02-9ade-4d9d-9f39-xxxxxx`）。
+将第一步中获取的 API Key 填入 JSON 配置中的 `CONTEXTWEAVE_MCP_API_KEY` 字段（替换 `94a05d02-9ade-4d9d-9f39-xxxxxx`）。
 
 **ContextWeave MCP JSON 配置：**
 
@@ -41,7 +41,7 @@
       "command": "D:\\cwmcp-client-windows.exe",
       "args": [],
       "env": {
-        "MCP_API_KEY": "94a05d02-9ade-4d9d-9f39-xxxxxx"
+        "CONTEXTWEAVE_MCP_API_KEY": "94a05d02-9ade-4d9d-9f39-xxxxxx"
       }
     }
   }
